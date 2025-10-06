@@ -1,0 +1,50 @@
+import {
+  Box,
+  CircularProgress,
+  Typography,
+  type CircularProgressProps,
+} from "@mui/material";
+
+type ProgressColor =
+  | "inherit"
+  | "primary"
+  | "secondary"
+  | "error"
+  | "info"
+  | "success"
+  | "warning";
+
+export default function CircularProgressWithLabel(
+  props: CircularProgressProps & {
+    value: number;
+    colors: ProgressColor;
+    sizes: string;
+  }
+) {
+  return (
+    <Box sx={{ position: "relative", display: "inline-flex" }}>
+      <CircularProgress
+        size={props.sizes === "normal" ? 40 : 200}
+        variant="determinate"
+        color={props.colors}
+        {...props}
+      />
+      <Box
+        sx={{
+          top: 0,
+          left: 0,
+          bottom: 0,
+          right: 0,
+          position: "absolute",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Typography variant={props.sizes === "normal" ? "caption" : "h2" } color={props.colors}>
+          {`${Math.round(props.value)}%`}
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
