@@ -1,4 +1,4 @@
-import { Box, Pagination, Stack, useTheme } from "@mui/material";
+import { Box, Pagination, Stack, TextField, useTheme } from "@mui/material";
 import { TaskContext } from "../Context/Taskcontext";
 import { useContext } from "react";
 import Taskloadingskeletoncomponent from "../Component/Taskloadingskeleton";
@@ -17,7 +17,8 @@ export default function Listmanagecomponent() {
     inprogresstaskarray,
     donetaskarray,
   }: any = taskcontext;
-  const { filtersinglestate, setfiltersinglestate }: any = filtercontext;
+  const { filtersinglestate, setfiltersinglestate, search }: any =
+    filtercontext;
 
   const senddataarray = (): Task[] => {
     if (filtersinglestate.selectfilter === 1 && donetaskarray.length > 0) {
@@ -58,8 +59,16 @@ export default function Listmanagecomponent() {
         direction={"row"}
         justifyContent={"center"}
         gap={1}
+        flexWrap={"wrap"}
       >
         <Filtertypecomponent />
+        <TextField
+          label="Search title"
+          type="search"
+          variant="outlined"
+          size="small"
+          onChange={(e: any) => search(e.target.value)}
+        />
       </Stack>
       <Stack
         mb={20}
@@ -73,7 +82,14 @@ export default function Listmanagecomponent() {
         ) : singlestate.Task?.length > 0 ? (
           <Taskcardcomponent data={currentTasks} disabled={false} />
         ) : (
-          <Dataemptycomponent />
+          <Stack
+            sx={{
+              height: "calc(100vh - 375px)",
+              justifyContent: "center",
+            }}
+          >
+            <Dataemptycomponent />
+          </Stack>
         )}
       </Stack>
       {singlestate.Task.length > 0 && (

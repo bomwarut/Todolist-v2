@@ -6,6 +6,7 @@ const TaskContext = createContext<any | undefined>(undefined);
 
 const selectdataobject: Selectdata = {
   Task: [],
+  prevTask: [],
   uinotfound: false,
   loading: false,
   saving: false,
@@ -48,8 +49,18 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
     (item: Task) => item.progress === 100
   );
 
-  const initialdata = () => {
+  const initialdata = (): void => {
     setsinglestate((prev: Selectdata) => ({ ...prev, loading: true }));
+
+    const setdata = (res: any): Task[] =>
+      res.data.map((item: Task) => ({
+        ...item,
+        describtion: "",
+        datestart: "",
+        dateend: "",
+        progress: item.completed ? 100 : 0,
+        expanded: false,
+      }));
 
     Useapi("https://jsonplaceholder.typicode.com/todos")
       .then((res: any) => {
@@ -58,18 +69,18 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
             res.status === 200
               ? {
                   ...prev,
-                  Task: res.data.map((item: Task) => ({
-                    ...item,
-                    describtion: "",
-                    datestart: "",
-                    dateend: "",
-                    progress: item.completed ? 100 : 0,
-                    expanded: false,
-                  })),
+                  Task: setdata(res),
+                  prevTask: setdata(res),
                   uinotfound: false,
                   loading: false,
                 }
-              : { ...prev, Task: [], uinotfound: true, loading: false }
+              : {
+                  ...prev,
+                  Task: [],
+                  prevTask: [],
+                  uinotfound: true,
+                  loading: false,
+                }
           );
         }, 1000);
       })
@@ -77,29 +88,29 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
         setsinglestate((prev: Selectdata) => ({
           ...prev,
           Task: [],
+          prevTask: [],
           uinotfound: true,
           loading: false,
         }));
       });
   };
 
-  const Togglesnackbar = (val: boolean) =>
+  const Togglesnackbar = (val: boolean): void =>
     setTaskmangastate((prev: Taskmange) => ({
       ...prev,
       opensnackbar: val,
     }));
 
-  const Togglemodal = (item: Task, val: boolean) =>
+  const Togglemodal = (item: Task, val: boolean): void =>
     setTaskmangastate((prev: Taskmange) => ({
       ...prev,
       Taskdata: item,
       openmodal: val,
     }));
 
-  const ToggleTaskstatus = (item: Task) => {
-    setsinglestate((prev: Selectdata) => ({
-      ...prev,
-      Task: prev.Task.map((item2: Task) =>
+  const ToggleTaskstatus = (item: Task): void => {
+    const setdata = (prev: any): Task[] =>
+      prev.Task.map((item2: Task) =>
         item2.id === item.id
           ? {
               ...item2,
@@ -107,12 +118,17 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
               progress: item2.completed ? 0 : 100,
             }
           : { ...item2 }
-      ),
+      );
+
+    setsinglestate((prev: Selectdata) => ({
+      ...prev,
+      Task: setdata(prev),
+      prevTask: setdata(prev),
     }));
     Togglesnackbar(true);
   };
 
-  const Selectask = (item: Task) => {
+  const Selectask = (item: Task): void => {
     if (Taskmangastate.selectedCard !== item.id) {
       setTaskmangastate((prev) => ({
         ...prev,
@@ -121,7 +137,7 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const Expandcard = (item: Task) =>
+  const Expandcard = (item: Task): void =>
     setsinglestate((prev: Selectdata) => ({
       ...prev,
       Task: prev.Task.map((item2: Task) =>
@@ -131,23 +147,26 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
       ),
     }));
 
-  const Savetask = (item: Task, type: number) => {
+  const Savetask = (item: Task, type: number): void => {
+    const setdata = (prev: any): Task[] =>
+      type === 1
+        ? [...prev.Task, { ...item }]
+        : prev.Task.map((item2: Task) =>
+            item2.id === item.id
+              ? {
+                  ...item2,
+                  title: item.title,
+                  describtion: item.describtion,
+                  progress: item.progress,
+                  completed: item.progress === 100 ? true : false,
+                }
+              : item2
+          );
+
     setsinglestate((prev: Selectdata) => ({
       ...prev,
-      Task:
-        type === 1
-          ? [...prev.Task, { ...item }]
-          : prev.Task.map((item2: Task) =>
-              item2.id === item.id
-                ? {
-                    ...item2,
-                    title: item.title,
-                    describtion: item.describtion,
-                    progress: item.progress,
-                    completed: item.progress === 100 ? true : false,
-                  }
-                : item2
-            ),
+      Task: setdata(prev),
+      prevTask: setdata(prev),
       saving: true,
     }));
     setTimeout(() => {
@@ -173,10 +192,14 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
     }, 1000);
   };
 
-  const Deletetask = (item: Task) => {
+  const Deletetask = (item: Task): void => {
+    const setdata = (prev: any): Task[] =>
+      prev.Task.filter((item2: Task) => item2.id !== item.id);
+
     setsinglestate((prev: Selectdata) => ({
       ...prev,
-      Task: prev.Task.filter((item2: Task) => item2.id !== item.id),
+      Task: setdata(prev),
+      prevTask: setdata(prev),
       saving: true,
     }));
     setTimeout(() => {
@@ -206,6 +229,7 @@ export default function TodoProvider({ children }: { children: ReactNode }) {
     <TaskContext.Provider
       value={{
         singlestate,
+        setsinglestate,
         Taskmangastate,
         initialdata,
         Selectask,

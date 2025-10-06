@@ -14,6 +14,7 @@ export interface Task {
 
 export interface Selectdata {
   Task: Task[];
+  prevTask: Task[];
   uinotfound: boolean;
   loading: boolean;
   saving: boolean;

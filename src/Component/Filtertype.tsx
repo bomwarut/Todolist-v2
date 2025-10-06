@@ -19,6 +19,7 @@ export default function Filtertypecomponent() {
 
   return filterarray.map((item: filtertype, index: number) => (
     <Chip
+      key={index}
       icon={
         <Typography
           variant="body2"
