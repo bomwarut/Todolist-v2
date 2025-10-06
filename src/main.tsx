@@ -6,6 +6,7 @@ import { BrowserRouter } from "react-router-dom";
 import Routing from "./Routing/Routing.tsx";
 import { createTheme, CssBaseline, ThemeProvider } from "@mui/material";
 import TodoProvider from "./Context/Taskcontext.tsx";
+import FilterProvider from "./Context/Filtercontext.tsx";
 
 const theme = createTheme({
   colorSchemes: {
@@ -18,9 +19,11 @@ createRoot(document.getElementById("root")!).render(
     <BrowserRouter>
       <ThemeProvider theme={theme}>
         <TodoProvider>
-          <CssBaseline />
-          <App />
-          <Routing />
+          <FilterProvider>
+            <CssBaseline />
+            <App />
+            <Routing />
+          </FilterProvider>
         </TodoProvider>
       </ThemeProvider>
     </BrowserRouter>

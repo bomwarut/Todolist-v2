@@ -23,6 +23,10 @@ export interface filtertype {
   data: number;
   label: string;
 }
+export interface filterobjecttype {
+  selectfilter: number;
+  page: number;
+}
 export interface Taskmange {
   selectedCard: number;
   openmodal: boolean;

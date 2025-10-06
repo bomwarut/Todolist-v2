@@ -1,38 +1,41 @@
-import {
-  Box,
-  Chip,
-  Pagination,
-  Stack,
-  Typography,
-  useTheme,
-} from "@mui/material";
+import { Box, Pagination, Stack, useTheme } from "@mui/material";
 import { TaskContext } from "../Context/Taskcontext";
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import Taskloadingskeletoncomponent from "../Component/Taskloadingskeleton";
 import Dataemptycomponent from "../Component/Dataempty";
 import Taskcardcomponent from "../Component/Taskcardcomponent";
-import type { filtertype, Task } from "../Interface/globalinterface";
+import type { filterobjecttype, Task } from "../Interface/globalinterface";
+import { FilterContext } from "../Context/Filtercontext";
+import Filtertypecomponent from "../Component/Filtertype";
 
 export default function Listmanagecomponent() {
-  const context: any = useContext(TaskContext);
+  const taskcontext: any = useContext(TaskContext);
+  const filtercontext: any = useContext(FilterContext);
   const {
     singlestate,
-    notdonetask,
-    inprogress,
-    donetask,
     notdonetaskarray,
     inprogresstaskarray,
     donetaskarray,
-  } = context;
+  }: any = taskcontext;
+  const { filtersinglestate, setfiltersinglestate }: any = filtercontext;
 
   const senddataarray = (): Task[] => {
-    if (selectfilter === 1 && donetaskarray.length > 0) {
+    if (filtersinglestate.selectfilter === 1 && donetaskarray.length > 0) {
       return donetaskarray;
-    } else if (selectfilter === 2 && inprogresstaskarray.length > 0) {
+    } else if (
+      filtersinglestate.selectfilter === 2 &&
+      inprogresstaskarray.length > 0
+    ) {
       return inprogresstaskarray;
-    } else if (selectfilter === 3 && notdonetaskarray.length > 0) {
+    } else if (
+      filtersinglestate.selectfilter === 3 &&
+      notdonetaskarray.length > 0
+    ) {
       return notdonetaskarray;
-    } else if (selectfilter === 4 && singlestate.Task.length > 0) {
+    } else if (
+      filtersinglestate.selectfilter === 4 &&
+      singlestate.Task.length > 0
+    ) {
       return singlestate.Task;
     } else {
       return singlestate.Task;
@@ -41,26 +44,12 @@ export default function Listmanagecomponent() {
 
   const theme = useTheme();
   const backgroundwhite = theme.palette.background.paper;
-  const [selectfilter, setselectfilter] = useState<number>(0);
-  const [page, setPage] = useState<number>(1);
   const taskPerPage: number = 25;
-  const filterarray: filtertype[] = [
-    { data: donetask, label: "Done" },
-    { data: inprogress, label: "Inprogress" },
-    { data: notdonetask, label: "Not done" },
-    { data: singlestate.Task.length, label: "All" },
-  ];
 
   const currentTasks: Task[] = senddataarray().slice(
-    (page - 1) * taskPerPage,
-    page * taskPerPage
+    (filtersinglestate.page - 1) * taskPerPage,
+    filtersinglestate.page * taskPerPage
   );
-  const filter = (type: number): void => {
-    if (type !== selectfilter) {
-      setselectfilter(type);
-      setPage(1);
-    }
-  };
 
   return (
     <Box sx={{ padding: "130px 8px 20px 8px" }}>
@@ -70,31 +59,7 @@ export default function Listmanagecomponent() {
         justifyContent={"center"}
         gap={1}
       >
-        {filterarray.map((item: filtertype, index: number) => (
-          <Chip
-            icon={
-              <Typography
-                variant="body2"
-                color="white"
-                sx={{ marginLeft: "8px !important" }}
-              >
-                {item.data}
-              </Typography>
-            }
-            label={item.label}
-            color={
-              index === 0
-                ? "success"
-                : index === 1
-                ? "warning"
-                : index === 2
-                ? "error"
-                : "default"
-            }
-            sx={{ color: "white" }}
-            onClick={() => filter(index + 1)}
-          />
-        ))}
+        <Filtertypecomponent />
       </Stack>
       <Stack
         mb={20}
@@ -123,8 +88,13 @@ export default function Listmanagecomponent() {
             justifyContent: "center",
           }}
           count={Math.ceil(senddataarray().length / 25)}
-          page={page}
-          onChange={(_e: React.ChangeEvent<unknown>, v: number) => setPage(v)}
+          page={filtersinglestate.page}
+          onChange={(_e: React.ChangeEvent<unknown>, v: number) =>
+            setfiltersinglestate((prev: filterobjecttype) => ({
+              ...prev,
+              page: v,
+            }))
+          }
           showFirstButton
           showLastButton
           color="primary"
