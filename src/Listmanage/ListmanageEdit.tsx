@@ -15,8 +15,8 @@ import CloseIcon from "@mui/icons-material/Close";
 
 export default function ListmanageEditcomponent() {
   const theme = useTheme();
-  const context: any = useContext(TaskContext);
   const backgroundwhite = theme.palette.background.paper;
+  const context: any = useContext(TaskContext);
   const { singlestate, Savetask, Taskmangastate, Deletetask, Togglemodal } =
     context;
 
@@ -25,7 +25,7 @@ export default function ListmanageEditcomponent() {
   const [progress, setprogress] = useState<number>(0);
   const [modalheader, setmodalheader] = useState<string>("");
   const disableform: boolean = !title?.toString().trim();
-  const handleSliderChange = (event: Event, newValue: number) =>
+  const handleSliderChange = (_event: Event, newValue: number) =>
     setprogress(newValue);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) =>
@@ -63,6 +63,7 @@ export default function ListmanageEditcomponent() {
     <Box
       sx={{
         padding: "30px",
+        borderRadius: "10px",
         background: backgroundwhite,
       }}
     >
@@ -126,10 +127,11 @@ export default function ListmanageEditcomponent() {
         <Stack direction={"row"} justifyContent={"space-between"}>
           {modalheader === "Edit" && (
             <Button
-              color="error"
+              color="warning"
               variant="contained"
               loading={singlestate.saving}
               onClick={() => Deletetask(Taskmangastate.Taskdata)}
+              sx={{ textTransform: "none" }}
             >
               <Typography variant="body1">Delete</Typography>
             </Button>
@@ -138,7 +140,7 @@ export default function ListmanageEditcomponent() {
             color="success"
             variant="contained"
             loading={singlestate.saving}
-            sx={{ marginLeft: "auto" }}
+            sx={{ marginLeft: "auto", textTransform: "none" }}
             onClick={submit}
             disabled={disableform}
           >

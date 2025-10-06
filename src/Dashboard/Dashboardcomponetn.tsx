@@ -4,7 +4,6 @@ import { useContext } from "react";
 import { TaskContext } from "../Context/Taskcontext";
 import Taskloadingskeletoncomponent from "../Component/Taskloadingskeleton";
 import Taskcardcomponent from "../Component/Taskcardcomponent";
-import type { Task } from "../Interface/globalinterface";
 import Dashboardloadingskeletoncomponent from "../Component/Dashboardloadingskeleton";
 import Dataemptycomponent from "../Component/Dataempty";
 

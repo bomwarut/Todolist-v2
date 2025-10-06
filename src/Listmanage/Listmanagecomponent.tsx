@@ -1,9 +1,17 @@
-import { Box, Chip, Stack, Typography } from "@mui/material";
+import {
+  Box,
+  Chip,
+  Pagination,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
 import { TaskContext } from "../Context/Taskcontext";
 import { useContext, useState } from "react";
 import Taskloadingskeletoncomponent from "../Component/Taskloadingskeleton";
 import Dataemptycomponent from "../Component/Dataempty";
 import Taskcardcomponent from "../Component/Taskcardcomponent";
+import type { filtertype, Task } from "../Interface/globalinterface";
 
 export default function Listmanagecomponent() {
   const context: any = useContext(TaskContext);
@@ -16,8 +24,8 @@ export default function Listmanagecomponent() {
     inprogresstaskarray,
     donetaskarray,
   } = context;
-  const [selectfilter, setselectfilter] = useState<number>(0);
-  const senddataarray = () => {
+
+  const senddataarray = (): Task[] => {
     if (selectfilter === 1 && donetaskarray.length > 0) {
       return donetaskarray;
     } else if (selectfilter === 2 && inprogresstaskarray.length > 0) {
@@ -31,6 +39,29 @@ export default function Listmanagecomponent() {
     }
   };
 
+  const theme = useTheme();
+  const backgroundwhite = theme.palette.background.paper;
+  const [selectfilter, setselectfilter] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const taskPerPage: number = 25;
+  const filterarray: filtertype[] = [
+    { data: donetask, label: "Done" },
+    { data: inprogress, label: "Inprogress" },
+    { data: notdonetask, label: "Not done" },
+    { data: singlestate.Task.length, label: "All" },
+  ];
+
+  const currentTasks: Task[] = senddataarray().slice(
+    (page - 1) * taskPerPage,
+    page * taskPerPage
+  );
+  const filter = (type: number): void => {
+    if (type !== selectfilter) {
+      setselectfilter(type);
+      setPage(1);
+    }
+  };
+
   return (
     <Box sx={{ padding: "130px 8px 20px 8px" }}>
       <Stack
@@ -39,65 +70,34 @@ export default function Listmanagecomponent() {
         justifyContent={"center"}
         gap={1}
       >
-        <Chip
-          icon={
-            <Typography
-              variant="body2"
-              color="white"
-              sx={{ marginLeft: "8px !important" }}
-            >
-              {donetask}
-            </Typography>
-          }
-          label="Done"
-          color="success"
-          sx={{ color: "white" }}
-          onClick={() => setselectfilter(1)}
-        />
-        <Chip
-          icon={
-            <Typography
-              variant="body2"
-              color="white"
-              sx={{ marginLeft: "8px !important" }}
-            >
-              {inprogress}
-            </Typography>
-          }
-          label="Inprogress"
-          color="warning"
-          sx={{ color: "white" }}
-          onClick={() => setselectfilter(2)}
-        />
-        <Chip
-          icon={
-            <Typography
-              variant="body2"
-              color="white"
-              sx={{ marginLeft: "8px !important" }}
-            >
-              {notdonetask}
-            </Typography>
-          }
-          color="error"
-          label="Not done"
-          sx={{ color: "white" }}
-          onClick={() => setselectfilter(3)}
-        />
-        <Chip
-          icon={
-            <Typography
-              variant="body2"
-              sx={{ marginLeft: "8px !important" }}
-            >
-              {singlestate.Task.length}
-            </Typography>
-          }
-          label="All"
-          onClick={() => setselectfilter(4)}
-        />
+        {filterarray.map((item: filtertype, index: number) => (
+          <Chip
+            icon={
+              <Typography
+                variant="body2"
+                color="white"
+                sx={{ marginLeft: "8px !important" }}
+              >
+                {item.data}
+              </Typography>
+            }
+            label={item.label}
+            color={
+              index === 0
+                ? "success"
+                : index === 1
+                ? "warning"
+                : index === 2
+                ? "error"
+                : "default"
+            }
+            sx={{ color: "white" }}
+            onClick={() => filter(index + 1)}
+          />
+        ))}
       </Stack>
       <Stack
+        mb={20}
         direction={"row"}
         flexWrap={"wrap"}
         justifyContent={"center"}
@@ -106,11 +106,30 @@ export default function Listmanagecomponent() {
         {singlestate.loading ? (
           <Taskloadingskeletoncomponent />
         ) : singlestate.Task?.length > 0 ? (
-          <Taskcardcomponent data={senddataarray()} disabled={false} />
+          <Taskcardcomponent data={currentTasks} disabled={false} />
         ) : (
           <Dataemptycomponent />
         )}
       </Stack>
+      {singlestate.Task.length > 0 && (
+        <Pagination
+          sx={{
+            padding: "10px",
+            backgroundColor: backgroundwhite,
+            width: "100%",
+            position: "fixed",
+            bottom: 0,
+            display: "flex",
+            justifyContent: "center",
+          }}
+          count={Math.ceil(senddataarray().length / 25)}
+          page={page}
+          onChange={(_e: React.ChangeEvent<unknown>, v: number) => setPage(v)}
+          showFirstButton
+          showLastButton
+          color="primary"
+        />
+      )}
     </Box>
   );
 }
